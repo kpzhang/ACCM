@@ -1,10 +1,12 @@
 # -*- coding:  UTF-8 -*-
-#科学计算包
+#
 from numpy import *
-#运算符模块
+#
 import operator
 import sys;
 import re
+import cal
+#import change
 #listdir
 from os import listdir
 #word2vec
@@ -14,46 +16,44 @@ from gensim.models import word2vec
 from gensim import *
 
 
-#第一部分：获得图中边的字典表示
-def loadGraphDict(fileName):#初始化待处理数据
+#
+def loadGraphDict(fileName):#
     dataDict = {}
     fx = open(fileName)
-    for line in fx.readlines():#m行
-        lineArr = re.split(' |,',line.strip())#以空格分开,每一条边记录到
+    for line in fx.readlines():#
+        lineArr = re.split(' |,|\t',line.strip())#
         lenth=len(lineArr)
         
         if(lenth<2): 
             break;
         if(lineArr[0] not in dataDict.keys()):
-            dataDict[str(lineArr[0])]={str(lineArr[1]):0}#建立以某个节点的相邻边集权重字典
+            dataDict[str(lineArr[0])]=[str(lineArr[1])]
+#
         #elif(len(dataDict[str(lineArr[0])])>0)
-        if(lineArr[1] not in dataDict[str(lineArr[0])].keys()):
-            dataDict[str(lineArr[0])][str(lineArr[1])]=0#在该节点的相邻边集上加一条新边
-    #有向图则只一边，无向图加两次。
+        if(lineArr[1] not in dataDict[str(lineArr[0])]):
+            dataDict[str(lineArr[0])].append(str(lineArr[1]))
+#
+    #
         if(lineArr[1] not in dataDict.keys()):
-            dataDict[str(lineArr[1])]={str(lineArr[0]):0}#建立以某个节点的相邻边集权重字典
+            dataDict[str(lineArr[1])]=[str(lineArr[0])]#
         #elif(len(dataDict[str(lineArr[0])])>0)
-        if(lineArr[0] not in dataDict[str(lineArr[1])].keys()):
-            dataDict[str(lineArr[1])][str(lineArr[0])]=0#在该节点的相邻边集上加一条新边
+        if(lineArr[0] not in dataDict[str(lineArr[1])]):
+            dataDict[str(lineArr[1])].append(str(lineArr[0]))#
     return dataDict
 
 
 
-#START是主函数
+
+#
 def start():
-    #father="data20/"
+    #father="data/"
     nLen = len(sys.argv);
     for i in range(0, nLen):  
         print("argv %d:%s" %(i, sys.argv[i]));  
     father=str(sys.argv[1])
     filename=str(sys.argv[2])
-    #第一部分：获得图中边的字典表示
-    ###xDict=loadGraphDict(filename)
-    #print "xDict=",xDict
-    ###yDict=loadGraphDict(father+'y2.txt')
-    #print "yDict=",yDict
 
-    fx=open(father+'connectY2.txt')
+    fx=open(father+'connect.txt')
     fc=open(father+'trainConnect.txt','w')
     ft=open(father+'testConnect.txt','w')
 
@@ -64,17 +64,17 @@ def start():
 	lineArr = line.strip().split()
         if(nowIter==randomIter):
             nowIter+=1;
-	    ###if(len(xDict[lineArr[0]])>0):
+	    #if(len(xDict[lineArr[0]])>10):
 	    ft.write('%s %s\n'%(lineArr[0],lineArr[1]))
         else:
             nowIter+=1;
-	    ###if(len(xDict[lineArr[0]])>0):
+	    #if(len(xDict[lineArr[0]])>10):
 	    fc.write('%s %s\n'%(lineArr[0],lineArr[1]))
 	if(nowIter>=3):
             randomIter=random.randint(0, 3);
             nowIter=0
 	i+=1
-    print("共有几条="),i
+    print("items="),i
     fc.close()
     ft.close()
 

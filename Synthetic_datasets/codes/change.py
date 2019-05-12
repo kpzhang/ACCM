@@ -1,38 +1,31 @@
 # -*- coding: UTF-8 -*-
-#科学计算包
+#youtube
 from numpy import *
-#运算符模块
 import operator
-#listdir
 from os import listdir
-#random
 import sys
 import re
 import cal
 import random
 from random import shuffle
-#word2vec
 from gensim import corpora,models,similarities
 from gensim import utils,matutils
 from gensim.models import word2vec
 from gensim import *
-#START是主函数
-def start(father="data10/",changeRate=0.1,filename='x.txt'):
-	#第一部分：获得changey.txt
-	fx=open(filename)
+def start(father="data/",changeRate=0.1,filename='twitter.txt'):
+	fx=open(father+filename)
 	fc=open(father+'changey.txt','w')
 	fy=open(father+'y2.txt','w')
 	biggestNode=1
 	nowIter=0
 	nodeSet=set()
 	nodeSet2=set()
-	#randomIter=random.randint(0,9)
 
-	#1.-浏览边
+	#1.-
 	for line in fx.readlines():
-		lineArr = re.split(' |,',line.strip())#以空格分开,每一条边记录到
+		lineArr = re.split(' |,|\t',line.strip())
                 lenth=len(lineArr)
-                if(lenth<2): #捕获最后一行空的情况
+                if(lenth<2): 
                     break;
 
 
@@ -41,13 +34,12 @@ def start(father="data10/",changeRate=0.1,filename='x.txt'):
 		nodeSet.add(int(lineArr[1]))
 		nodeSet2.add(int(lineArr[0]))
 		nodeSet2.add(int(lineArr[1]))
-		#if(int(lineArr[0])>biggestNode):#记录数字最大的节点
-			#biggestNode=(lineArr[0])
+
                 
 		nowIter+=1
         biggestNode=max(nodeSet2)
         print "biggestNode=",biggestNode
-	#2.随机删除changeRate%的节点，和所有相关的边
+	#2.
 	fc.close()
 	fc=open(father+'changey.txt','r')
 	removeSet=set()
@@ -56,37 +48,40 @@ def start(father="data10/",changeRate=0.1,filename='x.txt'):
         nodeSet=list(nodeSet)
         random.Random(0).shuffle(nodeSet)
 
-     #随机选择要删除的节点
+        #delete randomly
         for nowIter in range(int(changeRate*lenSet)):
             node=random.Random().choice(nodeSet)
             removeSet.add(node)
             nodeSet2.remove(node)
             nodeSet.remove(node)
         print "len(removeSet)=",len(removeSet)
-	#删除节点相关联的边
+	#
 	for line in fc.readlines():
-	    lineArr = re.split(' |,',line.strip())#以空格分开,每一条边记录到
+	    lineArr = re.split(' |,|\t',line.strip())#
             lenth=len(lineArr)
-            if(lenth<2): #捕获最后一行空的情况
+            if(lenth<2): #
                 break;
 	    if int(lineArr[0]) not in removeSet and int(lineArr[1]) not in removeSet:
 		fy.write('a%s a%s\n'%(lineArr[0],lineArr[1]))
-	print "removeSet=",removeSet
-	#3.加changeRate的节点，每个节点加du条边
+	#print "removeSet=",removeSet
+        fremove=open(father+'remove.txt','w')
+        for ra in removeSet:
+            fremove.write('%s '%ra)
+        fremove.close()
+	#3.
         #biggestNode=int(5000)
-	newNode=int(biggestNode)#新加的节点在最大的数字后加1
-	#alllen,du=cal.start(filename)
-        alllen=11765;du=947;
+	newNode=int(biggestNode)#
+	alllen,du,xDict=cal.start(father+filename)
+        #alllen=11765;du=947;
 	for j in range(int(changeRate*alllen)):
-	    newNode+=1#新加的节点数字加1
+	    newNode+=1#
 	    i=0
 	    nowIter=0
             nodeSet2=list(nodeSet2)
-            random.Random(0).shuffle(nodeSet2)   #打乱顺序
+            random.Random(0).shuffle(nodeSet2)   
             addset=set()
 	    while(i < du):
                 nodeY=random.Random().choice(nodeSet2)
-                
 		if(nodeY not in addset):
                     addset.add(nodeY)
 		    fy.write('a%s a%s\n'%(newNode,nodeY))
@@ -101,6 +96,7 @@ def start(father="data10/",changeRate=0.1,filename='x.txt'):
 	fy.close()
 	fc.close()
 	fx.close()
+        return xDict;
 
 if __name__=="__main__":
     nLen = len(sys.argv);
